@@ -48,3 +48,22 @@ exports.getFavouriteList = async (req, res, next) => {
     res.status(500).send("Something went wrong");
   }
 };
+
+exports.getHomeDetails = async (req, res, next) => {
+  try {
+    const homeId = req.params.homeId;
+    const home = await Home.findById(homeId);
+
+    if (!home) {
+      return res.redirect("/homes");
+    }
+    console.log(home);
+    res.render("store/home-detail", {
+      home: home,
+      pageTitle: "Home Detail",
+      currentPage: "Home",
+    });
+  } catch (error) {
+    console.log("Error getting home details", error);
+  }
+};

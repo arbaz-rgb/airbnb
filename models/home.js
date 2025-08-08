@@ -15,11 +15,12 @@ class Home {
 
   async save() {
     try {
+      this.id = Math.random().toString();
       const homes = await Home.fetchAll();
       homes.push(this);
       await fs.writeFile(homeDataPath, JSON.stringify(homes));
-    } catch (error){
-      console.log("error while writing the file")
+    } catch (error) {
+      console.log("error while writing the file");
     }
   }
 
@@ -31,6 +32,17 @@ class Home {
     } catch (error) {
       console.log("File read Error", error);
       return [];
+    }
+  }
+
+  static async findById(homeId) {
+    try {
+      const homes = await Home.fetchAll();
+      const homeFound = homes.find((home) => home.id == homeId) || null;
+      return homeFound;
+    } catch (error) {
+      console.error("Error finding home by ID:", error);
+      return null;
     }
   }
 }

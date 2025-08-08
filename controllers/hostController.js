@@ -26,7 +26,7 @@ exports.postAddHome = (req, res, next) => {
   const home = new Home(houseName, price, location, rating, photoUrl);
   home.save();
 
-  res.render("home/home-Added", {
+  res.render("host/home-Added", {
     pageTitle: "Home Added Successfully",
     currentPage: "homeAdded",
   });
