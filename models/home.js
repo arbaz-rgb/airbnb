@@ -13,7 +13,7 @@ class Home {
     this.photoUrl = photoUrl;
   }
 
-  async save() {
+  static async save() {
     try {
       this.id = Math.random().toString();
       const homes = await Home.fetchAll();

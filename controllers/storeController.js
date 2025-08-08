@@ -1,3 +1,4 @@
+const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = async (req, res, next) => {
@@ -38,14 +39,31 @@ exports.getBookings = (req, res, next) => {
 exports.getFavouriteList = async (req, res, next) => {
   try {
     const registeredHomes = await Home.fetchAll();
+    const favHomeId = await Favourite.getFavourite();
+
+    const favaouriteswithDetails = registeredHomes.filter((home) =>
+      favHomeId.includes(home.id)
+    );
+
     res.render("store/favourite-list", {
-      registeredHomes: registeredHomes,
+      favourites: favaouriteswithDetails,
       pageTitle: "My Favourites",
       currentPage: "favaourites",
     });
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went wrong");
+  }
+};
+
+exports.postAddToFavourite = async (req, res, next) => {
+  try {
+    const homeId = req.body.id;
+    await Favourite.addToFavourite(homeId);
+    res.redirect("/favourites");
+  } catch (error) {
+    console.log("Error adding favourites", error);
+    res.status(500).send("Internal Sever error");
   }
 };
 
@@ -57,7 +75,7 @@ exports.getHomeDetails = async (req, res, next) => {
     if (!home) {
       return res.redirect("/homes");
     }
-    console.log(home);
+
     res.render("store/home-detail", {
       home: home,
       pageTitle: "Home Detail",
