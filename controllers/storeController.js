@@ -67,6 +67,19 @@ exports.postAddToFavourite = async (req, res, next) => {
   }
 };
 
+exports.postRemoveFromFavourite = async (req, res, next) => {
+  try {
+    const homeId = req.params.homeId;
+    await Favourite.deleteById(homeId);
+    res.redirect("/favourites"); 
+  } catch (error) {
+    console.log("Error adding favourites", error);
+    res.status(500).send("Internal Sever error");
+  }
+};
+
+
+
 exports.getHomeDetails = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;

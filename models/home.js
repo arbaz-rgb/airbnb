@@ -1,6 +1,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 const rootDir = require("../utils/pathUtil");
+const Favourite = require("./favourite");
 
 const homeDataPath = path.join(rootDir, "data", "homes.json");
 
@@ -56,6 +57,18 @@ class Home {
     } catch (error) {
       console.error("Error finding home by ID:", error);
       return null;
+    }
+  }
+
+  static async deleteById(homeId) {
+    try {
+      const homes = await Home.fetchAll();
+      const homesAfterDelete = homes.filter((home) => home.id !== homeId);
+      await fs.writeFile(homeDataPath, JSON.stringify(homesAfterDelete));
+      await Favourite.deleteById(homeId);
+      console.log(`Home with ID ${homeId} deleted successfully`);
+    } catch (error) {
+      console.log(`Error while deleting the ID ${homeId}`, error);
     }
   }
 }

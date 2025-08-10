@@ -38,6 +38,23 @@ class Favourite {
       return [];
     }
   }
+
+  static async deleteById(homeId) {
+    try {
+      const favourites = await Favourite.getFavourite(); // array of IDs
+      const favouritesAfterDelete = favourites.filter((id) => id !== homeId);
+
+      await fs.writeFile(
+        favouriteDataPath,
+        JSON.stringify(favouritesAfterDelete)
+      );
+      console.log(
+        `Home with ID ${homeId} removed from favourites successfully`
+      );
+    } catch (error) {
+      console.log(`Error while deleting the ID ${homeId}`, error);
+    }
+  }
 }
 
 module.exports = Favourite;
