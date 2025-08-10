@@ -13,14 +13,27 @@ class Home {
     this.photoUrl = photoUrl;
   }
 
-  static async save() {
+  async save() {
     try {
-      this.id = Math.random().toString();
       const homes = await Home.fetchAll();
-      homes.push(this);
+
+      if (this.id) {
+        // edit-home case: update existing record
+        const existingIndex = homes.findIndex((home) => home.id === this.id);
+        if (existingIndex !== -1) {
+          homes[existingIndex] = this; // replace with updated data
+        } else {
+          console.log("Home not found for update");
+        }
+      } else {
+        // add-home case
+        this.id = Math.random().toString();
+        homes.push(this);
+      }
+
       await fs.writeFile(homeDataPath, JSON.stringify(homes));
     } catch (error) {
-      console.log("error while writing the file");
+      console.log("Error while writing the file:", error);
     }
   }
 
