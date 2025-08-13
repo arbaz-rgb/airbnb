@@ -10,7 +10,7 @@ exports.getHomeAdd = (req, res, next) => {
 
 exports.getHostHomes = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const [registeredHomes] = await Home.fetchAll();
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Host Home List",
@@ -26,7 +26,7 @@ exports.getEditHome = async (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === "true";
 
-  const home = await Home.findById(homeId);
+  const [[home]] = await Home.findById(homeId);
   if (!home) {
     return res.redirect("/host/host-home-list");
   }
@@ -38,29 +38,51 @@ exports.getEditHome = async (req, res, next) => {
   });
 };
 
-exports.postAddHome = (req, res, next) => {
-  const { houseName, price, location, rating, photoUrl } = req.body;
-  const home = new Home(houseName, price, location, rating, photoUrl);
-  home.save();
+exports.postAddHome = async (req, res, next) => {
+  try {
+    const { houseName, price, location, rating, photoUrl, description } =
+      req.body;
+    const home = new Home(
+      houseName,
+      price,
+      location,
+      rating,
+      photoUrl,
+      description
+    );
 
-  res.render("host/home-Added", {
-    pageTitle: "Home Added Successfully",
-    currentPage: "homeAdded",
-  });
+    await home.save();
+
+    res.render("host/home-Added", {
+      pageTitle: "Home Added Successfully",
+      currentPage: "homeAdded",
+    });
+  } catch (err) {
+    console.error("Error adding home:", err);
+    res.status(500).send("Something went wrong while adding the home");
+  }
 };
 
-exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, photoUrl } = req.body;
-  const home = new Home(houseName, price, location, rating, photoUrl);
+exports.postEditHome = async (req, res, next) => {
+  const { id, houseName, price, location, rating, photoUrl, description } =
+    req.body;
+  const home = new Home(
+    houseName,
+    price,
+    location,
+    rating,
+    photoUrl,
+    description,
+    id
+  );
 
-  home.id = id;
-  home.save();
+  await home.save();
   res.redirect("/host/host-home-list");
 };
 
-exports.postDeleteHome = (req, res, next) => {
+exports.postDeleteHome = async (req, res, next) => {
   const homeId = req.params.homeId;
-  Home.deleteById(homeId);
+  await Home.deleteById(homeId);
 
   res.redirect("/host/host-home-list");
 };

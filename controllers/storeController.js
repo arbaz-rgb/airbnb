@@ -3,28 +3,28 @@ const Home = require("../models/home");
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const [registeredHomes] = await Home.fetchAll();
     res.render("store/index", {
-      registeredHomes,
+      registeredHomes: registeredHomes,
       pageTitle: "airbnb Home",
       currentPage: "index",
     });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Something went wrong");
+  } catch (err) {
+    console.error("Error fetching homes:", err);
+    next(err);
   }
 };
 
 exports.getHomes = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const [registeredHomes] = await Home.fetchAll();
     res.render("store/home-list", {
-      registeredHomes,
+      registeredHomes: registeredHomes,
       pageTitle: "Home-list",
       currentPage: "Home",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send("Something went wrong");
   }
 };
@@ -38,7 +38,7 @@ exports.getBookings = (req, res, next) => {
 
 exports.getFavouriteList = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const [registeredHomes] = await Home.fetchAll();
     const favHomeId = await Favourite.getFavourite();
 
     const favaouriteswithDetails = registeredHomes.filter((home) =>
@@ -71,19 +71,17 @@ exports.postRemoveFromFavourite = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
     await Favourite.deleteById(homeId);
-    res.redirect("/favourites"); 
+    res.redirect("/favourites");
   } catch (error) {
     console.log("Error adding favourites", error);
     res.status(500).send("Internal Sever error");
   }
 };
 
-
-
 exports.getHomeDetails = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
-    const home = await Home.findById(homeId);
+    const [[home]] = await Home.findById(homeId);
 
     if (!home) {
       return res.redirect("/homes");

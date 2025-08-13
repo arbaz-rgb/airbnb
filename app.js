@@ -11,13 +11,6 @@ const rootDir = require("./utils/pathUtil");
 
 const errorController = require("./controllers/error");
 
-const db = require("./utils/databaseUtil");
-db.execute("SELECT *FROM homes")
-  .then((result) => console.log("getting fron DB", result))
-  .catch((error) => {
-    console.log("error while reading home records", error);
-  });
-
 const app = express();
 
 app.set("view engine", "ejs");

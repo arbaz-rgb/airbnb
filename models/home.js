@@ -1,75 +1,56 @@
-const fs = require("fs").promises;
-const path = require("path");
-const rootDir = require("../utils/pathUtil");
-const Favourite = require("./favourite");
-
-const homeDataPath = path.join(rootDir, "data", "homes.json");
+const db = require("../utils/databaseUtil");
 
 class Home {
-  constructor(houseName, price, location, rating, photoUrl) {
+  constructor(houseName, price, location, rating, photoUrl, description, id) {
     this.houseName = houseName;
     this.price = price;
     this.location = location;
     this.rating = rating;
     this.photoUrl = photoUrl;
+    this.description = description;
+    this.id = id;
   }
 
   async save() {
-    try {
-      const homes = await Home.fetchAll();
-
-      if (this.id) {
-        // edit-home case: update existing record
-        const existingIndex = homes.findIndex((home) => home.id === this.id);
-        if (existingIndex !== -1) {
-          homes[existingIndex] = this; // replace with updated data
-        } else {
-          console.log("Home not found for update");
-        }
-      } else {
-        // add-home case
-        this.id = Math.random().toString();
-        homes.push(this);
-      }
-
-      await fs.writeFile(homeDataPath, JSON.stringify(homes));
-    } catch (error) {
-      console.log("Error while writing the file:", error);
+    if (this.id) {
+    
+      return db.execute(
+        "UPDATE homes SET houseName=?, price=?, location=?, rating=?, photoUrl=?, description=? WHERE id=?",
+        [
+          this.houseName,
+          this.price,
+          this.location,
+          this.rating,
+          this.photoUrl,
+          this.description,
+          this.id,
+        ]
+      );
+    } else {
+      return db.execute(
+        "INSERT INTO homes (houseName, price, location, rating, photoUrl, description) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          this.houseName,
+          this.price,
+          this.location,
+          this.rating,
+          this.photoUrl,
+          this.description,
+        ]
+      );
     }
   }
 
   static async fetchAll() {
-    try {
-      const fileContent = await fs.readFile(homeDataPath, "utf-8");
-      if (!fileContent.length) return [];
-      return JSON.parse(fileContent);
-    } catch (error) {
-      console.log("File read Error", error);
-      return [];
-    }
+    return db.execute("SELECT * FROM homes");
   }
 
   static async findById(homeId) {
-    try {
-      const homes = await Home.fetchAll();
-      const homeFound = homes.find((home) => home.id == homeId) || null;
-      return homeFound;
-    } catch (error) {
-      console.error("Error finding home by ID:", error);
-      return null;
-    }
+    return db.execute("SELECT * FROM homes WHERE id=?", [homeId]);
   }
 
   static async deleteById(homeId) {
-    try {
-      const homes = await Home.fetchAll();
-      const homesAfterDelete = homes.filter((home) => home.id !== homeId);
-      await fs.writeFile(homeDataPath, JSON.stringify(homesAfterDelete));
-      await Favourite.deleteById(homeId);
-      console.log(`Home with ID ${homeId} deleted successfully`);
-    } catch (error) {
-      console.log(`Error while deleting the ID ${homeId}`, error);
-    }
+    return db.execute("DELETE FROM homes WHERE id=?", [homeId]);
   }
 }
 
