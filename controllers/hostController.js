@@ -10,7 +10,7 @@ exports.getHomeAdd = (req, res, next) => {
 
 exports.getHostHomes = async (req, res, next) => {
   try {
-    const [registeredHomes] = await Home.fetchAll();
+    const registeredHomes = await Home.fetchAll();
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Host Home List",
@@ -26,7 +26,7 @@ exports.getEditHome = async (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === "true";
 
-  const [[home]] = await Home.findById(homeId);
+  const home = await Home.findById(homeId);
   if (!home) {
     return res.redirect("/host/host-home-list");
   }

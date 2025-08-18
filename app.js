@@ -17,7 +17,8 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(storeRouter);
 app.use("/host", hostRouter);
 
@@ -27,8 +28,11 @@ app.use(errorController.pageNotFound);
 
 const PORT = 3000;
 
-mongoConnect(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on address http://localhost:${PORT}`);
-  });
-});
+mongoConnect()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on address http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => console.log("Failed to connect to DB", err));
+

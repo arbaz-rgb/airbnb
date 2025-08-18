@@ -3,7 +3,7 @@ const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
 
 const MONGO_URL =
-  "mongodb+srv://root:<db_password>@kadane.5nyfqmw.mongodb.net/?retryWrites=true&w=majority&appName=kadane";
+  "mongodb+srv://root:root@kadane.5nyfqmw.mongodb.net/airbnb?retryWrites=true&w=majority&appName=kadane";
 
 let _db;
 

@@ -3,7 +3,7 @@ const Home = require("../models/home");
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const [registeredHomes] = await Home.fetchAll();
+    const registeredHomes = await Home.fetchAll();
     res.render("store/index", {
       registeredHomes: registeredHomes,
       pageTitle: "airbnb Home",
@@ -17,7 +17,7 @@ exports.getIndex = async (req, res, next) => {
 
 exports.getHomes = async (req, res, next) => {
   try {
-    const [registeredHomes] = await Home.fetchAll();
+    const registeredHomes = await Home.fetchAll();
     res.render("store/home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Home-list",
@@ -38,11 +38,11 @@ exports.getBookings = (req, res, next) => {
 
 exports.getFavouriteList = async (req, res, next) => {
   try {
-    const [registeredHomes] = await Home.fetchAll();
+    const registeredHomes = await Home.fetchAll();
     const favHomeId = await Favourite.getFavourite();
 
     const favaouriteswithDetails = registeredHomes.filter((home) =>
-      favHomeId.includes(home.id)
+      favHomeId.includes(home._id)
     );
 
     res.render("store/favourite-list", {
@@ -81,7 +81,7 @@ exports.postRemoveFromFavourite = async (req, res, next) => {
 exports.getHomeDetails = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
-    const [[home]] = await Home.findById(homeId);
+    const home = await Home.findById(homeId);
 
     if (!home) {
       return res.redirect("/homes");
