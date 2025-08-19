@@ -1,59 +1,34 @@
-const fs = require("fs").promises;
-const path = require("path");
-const rootDir = require("../utils/pathUtil");
-
-const favouriteDataPath = path.join(rootDir, "data", "favourite.json");
+const { getDB } = require("../utils/databaseUtil");
 
 class Favourite {
-  static async addToFavourite(homeId) {
-    try {
-      const favourites = await Favourite.getFavourite();
+  constructor(houseId) {
+    this.houseId = houseId;
+  }
 
-      if (favourites.includes(homeId)) {
-        console.log("Home is already marked favourite");
-        return;
-      }
+  async save() {
+    const db = getDB();
 
-      favourites.push(homeId);
+    const existingOne = await db
+      .collection("favourites")
+      .findOne({ houseId: this.houseId });
 
-      await fs.writeFile(
-        favouriteDataPath,
-        JSON.stringify(favourites),
-        "utf-8"
-      );
-
-      console.log("Favourite saved successfully");
-    } catch (error) {
-      console.log("There is an error:", error);
+    if (!existingOne) {
+      // Insert only if not found
+      return db.collection("favourites").insertOne(this);
+    } else {
+      // Return something meaningful if already exists
+      return { message: "House is already in favourites" };
     }
   }
 
   static async getFavourite() {
-    try {
-      const fileContent = await fs.readFile(favouriteDataPath, "utf-8");
-      if (fileContent.length === 0) return [];
-      return JSON.parse(fileContent);
-    } catch (error) {
-      console.log("There is an error:", error);
-      return [];
-    }
+    const db = getDB();
+    return db.collection("favourites").find().toArray();
   }
 
   static async deleteById(homeId) {
-    try {
-      const favourites = await Favourite.getFavourite(); // array of IDs
-      const favouritesAfterDelete = favourites.filter((id) => id !== homeId);
-
-      await fs.writeFile(
-        favouriteDataPath,
-        JSON.stringify(favouritesAfterDelete)
-      );
-      console.log(
-        `Home with ID ${homeId} removed from favourites successfully`
-      );
-    } catch (error) {
-      console.log(`Error while deleting the ID ${homeId}`, error);
-    }
+    const db = getDB();
+    return db.collection("favourites").deleteOne({ houseId: homeId });
   }
 }
 

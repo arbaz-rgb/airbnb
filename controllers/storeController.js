@@ -39,10 +39,11 @@ exports.getBookings = (req, res, next) => {
 exports.getFavouriteList = async (req, res, next) => {
   try {
     const registeredHomes = await Home.fetchAll();
-    const favHomeId = await Favourite.getFavourite();
+    const favHomeDocs = await Favourite.getFavourite();
+    const favHomeId = favHomeDocs.map((fav) => fav.houseId.toString());
 
     const favaouriteswithDetails = registeredHomes.filter((home) =>
-      favHomeId.includes(home._id)
+      favHomeId.includes(home._id.toString())
     );
 
     res.render("store/favourite-list", {
@@ -59,7 +60,8 @@ exports.getFavouriteList = async (req, res, next) => {
 exports.postAddToFavourite = async (req, res, next) => {
   try {
     const homeId = req.body.id;
-    await Favourite.addToFavourite(homeId);
+    const favaourite = new Favourite(homeId);
+    await favaourite.save();
     res.redirect("/favourites");
   } catch (error) {
     console.log("Error adding favourites", error);
