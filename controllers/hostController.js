@@ -10,7 +10,7 @@ exports.getHomeAdd = (req, res, next) => {
 
 exports.getHostHomes = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const registeredHomes = await Home.find();
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Host Home List",
@@ -42,14 +42,14 @@ exports.postAddHome = async (req, res, next) => {
   try {
     const { houseName, price, location, rating, photoUrl, description } =
       req.body;
-    const home = new Home(
-      houseName,
-      price,
-      location,
-      rating,
-      photoUrl,
-      description
-    );
+    const home = new Home({
+      houseName: houseName,
+      price: price,
+      location: location,
+      rating: rating,
+      photoUrl: photoUrl,
+      description: description,
+    });
 
     await home.save();
 
@@ -64,25 +64,34 @@ exports.postAddHome = async (req, res, next) => {
 };
 
 exports.postEditHome = async (req, res, next) => {
-  const { id, houseName, price, location, rating, photoUrl, description } =
-    req.body;
-  const home = new Home(
-    houseName,
-    price,
-    location,
-    rating,
-    photoUrl,
-    description,
-    id
-  );
+  try {
+    const { id, houseName, price, location, rating, photoUrl, description } =
+      req.body;
 
-  await home.save();
-  res.redirect("/host/host-home-list");
+    const home = Home.findById(id);
+    if (!home) {
+      return res.redirect("/host/host-home-list");
+    }
+
+    home.houseName = houseName;
+    home.price = price;
+    home.location = location;
+    home.rating = rating;
+    home.photoUrl = photoUrl;
+    home.description = description;
+
+    await home.save();
+    res.redirect("/host/host-home-list");
+  } catch (err) {
+    console.error("Error editing home:", err);
+    res.status(500).send("Something went wrong while editing the home");
+  }
 };
 
 exports.postDeleteHome = async (req, res, next) => {
   const homeId = req.params.homeId;
-  await Home.deleteById(homeId);
+  await Home.findByIdAndDelete(homeId);
 
   res.redirect("/host/host-home-list");
 };
+ 

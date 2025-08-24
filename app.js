@@ -10,7 +10,8 @@ const hostRouter = require("./routes/hostRouter");
 const rootDir = require("./utils/pathUtil");
 
 const errorController = require("./controllers/error");
-const { mongoConnect } = require("./utils/databaseUtil");
+
+const { default: mongoose } = require("mongoose");
 
 const app = express();
 
@@ -28,11 +29,17 @@ app.use(errorController.pageNotFound);
 
 const PORT = 3000;
 
-mongoConnect()
+const DB_PATH =
+  "mongodb+srv://root:root@kadane.5nyfqmw.mongodb.net/airbnb?retryWrites=true&w=majority&appName=kadane";
+
+mongoose
+  .connect(DB_PATH)
   .then(() => {
+    console.log("connected to mongodb");
     app.listen(PORT, () => {
       console.log(`Server running on address http://localhost:${PORT}`);
     });
   })
-  .catch(err => console.log("Failed to connect to DB", err));
-
+  .catch((error) => {
+    console.log("There is an error", error);
+  });

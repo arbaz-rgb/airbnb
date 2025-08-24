@@ -3,7 +3,7 @@ const Home = require("../models/home");
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const registeredHomes = await Home.find();
     res.render("store/index", {
       registeredHomes: registeredHomes,
       pageTitle: "airbnb Home",
@@ -17,7 +17,7 @@ exports.getIndex = async (req, res, next) => {
 
 exports.getHomes = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
+    const registeredHomes = await Home.find();
     res.render("store/home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Home-list",
@@ -38,13 +38,8 @@ exports.getBookings = (req, res, next) => {
 
 exports.getFavouriteList = async (req, res, next) => {
   try {
-    const registeredHomes = await Home.fetchAll();
-    const favHomeDocs = await Favourite.getFavourite();
-    const favHomeId = favHomeDocs.map((fav) => fav.houseId.toString());
-
-    const favaouriteswithDetails = registeredHomes.filter((home) =>
-      favHomeId.includes(home._id.toString())
-    );
+    const favHomeDocs = await Favourite.find().populate("houseId");
+    const favaouriteswithDetails = favHomeDocs.map((fav) => fav.houseId);
 
     res.render("store/favourite-list", {
       favourites: favaouriteswithDetails,
@@ -60,7 +55,12 @@ exports.getFavouriteList = async (req, res, next) => {
 exports.postAddToFavourite = async (req, res, next) => {
   try {
     const homeId = req.body.id;
-    const favaourite = new Favourite(homeId);
+
+    const exist = await Favourite.findOne({ houseId: homeId });
+    if (exist) {
+      return res.redirect("/favourites");
+    }
+    const favaourite = new Favourite({ houseId: homeId });
     await favaourite.save();
     res.redirect("/favourites");
   } catch (error) {
@@ -72,7 +72,7 @@ exports.postAddToFavourite = async (req, res, next) => {
 exports.postRemoveFromFavourite = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
-    await Favourite.deleteById(homeId);
+    await Favourite.findOneAndDelete({ houseId: homeId });
     res.redirect("/favourites");
   } catch (error) {
     console.log("Error adding favourites", error);
