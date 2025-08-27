@@ -5,6 +5,7 @@ exports.getHomeAdd = (req, res, next) => {
     pageTitle: "Add Home to airbnb",
     currentPage: "addHome",
     editing: false,
+    isLoggedIn: req.isLoggedIn,
   });
 };
 
@@ -15,6 +16,7 @@ exports.getHostHomes = async (req, res, next) => {
       registeredHomes: registeredHomes,
       pageTitle: "Host Home List",
       currentPage: "host-homes",
+      isLoggedIn: req.isLoggedIn,
     });
   } catch (errot) {
     console.log(error);
@@ -35,6 +37,7 @@ exports.getEditHome = async (req, res, next) => {
     currentPage: "host-homes",
     editing: editing,
     home: home,
+    isLoggedIn: req.isLoggedIn,
   });
 };
 
@@ -94,4 +97,3 @@ exports.postDeleteHome = async (req, res, next) => {
 
   res.redirect("/host/host-home-list");
 };
- 

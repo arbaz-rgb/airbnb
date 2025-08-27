@@ -5,6 +5,7 @@ const path = require("path");
 const express = require("express");
 
 //Local Module
+const authRouter = require("./routes/authRouter");
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
 const rootDir = require("./utils/pathUtil");
@@ -12,6 +13,7 @@ const rootDir = require("./utils/pathUtil");
 const errorController = require("./controllers/error");
 
 const { default: mongoose } = require("mongoose");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -19,8 +21,23 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
+//  middleware to normalize login cookie
+app.use((req, res, next) => {
+  req.isLoggedIn = req.cookies.isLoggedIn === "true";
+  next();
+});
+
+app.use("/auth", authRouter);
 app.use(storeRouter);
+app.use("/host", (req, res, next) => {
+  if (req.cookies.isLoggedIn === "true") {
+    next();
+  } else {
+    res.redirect("/auth/login");
+  }
+});
 app.use("/host", hostRouter);
 
 app.use(express.static(path.join(rootDir, "public")));

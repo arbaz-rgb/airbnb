@@ -9,6 +9,8 @@
         >
       </li>
 
+      <% if (isLoggedIn) { %>
+
       <li>
         <a
           href="/homes"
@@ -46,6 +48,33 @@
           >Add Home</a
         >
       </li>
+
+      <% } %>
     </ul>
+    <% if (!isLoggedIn) { %>
+    <ul>
+      <li>
+        <a
+          href="/auth/login"
+          class="<%= currentPage === 'login' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300"
+        >
+          Login
+        </a>
+      </li>
+    </ul>
+    <% } else { %>
+    <ul>
+      <li>
+        <form action="/auth/logout" method="post">
+          <button
+            type="submit"
+            class="<%= currentPage === 'logout' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300"
+          >
+            Logout
+          </button>
+        </form>
+      </li>
+    </ul>
+    <% } %>
   </nav>
 </header>
