@@ -1,3 +1,4 @@
+const session = require("express-session");
 const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 

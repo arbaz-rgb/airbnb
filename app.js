@@ -3,6 +3,10 @@ const path = require("path");
 
 // External Module
 const express = require("express");
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
+const DB_PATH =
+  "mongodb+srv://root:root@kadane.5nyfqmw.mongodb.net/airbnb?retryWrites=true&w=majority&appName=kadane";
 
 //Local Module
 const authRouter = require("./routes/authRouter");
@@ -13,26 +17,38 @@ const rootDir = require("./utils/pathUtil");
 const errorController = require("./controllers/error");
 
 const { default: mongoose } = require("mongoose");
-const cookieParser = require("cookie-parser");
 
 const app = express();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
+const store = new MongoDBStore({
+  uri: DB_PATH,
+  collection: "sessions",
+});
+
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+
+app.use(
+  session({
+    secret: "kadane",
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+  })
+);
 
 //  middleware to normalize login cookie
 app.use((req, res, next) => {
-  req.isLoggedIn = req.cookies.isLoggedIn === "true";
+  req.isLoggedIn = req.session.isLoggedIn;
   next();
 });
 
 app.use("/auth", authRouter);
 app.use(storeRouter);
 app.use("/host", (req, res, next) => {
-  if (req.cookies.isLoggedIn === "true") {
+  if (req.session.isLoggedIn) {
     next();
   } else {
     res.redirect("/auth/login");
@@ -45,9 +61,6 @@ app.use(express.static(path.join(rootDir, "public")));
 app.use(errorController.pageNotFound);
 
 const PORT = 3000;
-
-const DB_PATH =
-  "mongodb+srv://root:root@kadane.5nyfqmw.mongodb.net/airbnb?retryWrites=true&w=majority&appName=kadane";
 
 mongoose
   .connect(DB_PATH)
