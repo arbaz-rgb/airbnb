@@ -5,11 +5,27 @@
   <%- include('../partials/nav') %>
 
   <main class="container mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
-      Register as a new User
-    </h1>
+   <h1 class="text-3xl font-bold mb-6 text-center text-red-500">
+  Register as a new User
+</h1>
+
 
     <form action="/auth/signup" method="POST" class="max-w-md mx-auto">
+<% if (errors && errors.length > 0) { %>
+  <div class="mb-6 p-4 rounded-lg bg-red-100 text-red-800 shadow-md border border-red-300">
+    <div class="flex items-center mb-2">
+      <span class="text-2xl mr-2">⚠️</span>
+      <span class="font-bold">Please fix the following errors:</span>
+    </div>
+    <ul class="list-disc list-inside space-y-1">
+      <% errors.forEach(err => { %>
+        <li>❌ <%= err.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+
 
       <!-- First Name -->
       <input
@@ -20,6 +36,7 @@
         required
         autocomplete="off"
       />
+      
 
       <!-- Last Name -->
       <input
