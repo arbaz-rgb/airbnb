@@ -32,6 +32,7 @@
         type="text"
         name="firstName"
         placeholder="First Name"
+        value="<%= oldInput.firstName ? oldInput.firstName : '' %>"
         class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
         required
         autocomplete="off"
@@ -39,19 +40,23 @@
       
 
       <!-- Last Name -->
-      <input
-        type="text"
-        name="lastName"
-        placeholder="Last Name"
-        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        autocomplete="off"
-      />
+    <input
+  type="text"
+  name="lastName"
+  placeholder="Last Name"
+  value="<%= oldInput.lastName ? oldInput.lastName : '' %>"
+  class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+  autocomplete="off"
+  required
+/>
+
 
       <!-- Email -->
       <input
         type="email"
         name="email"
         placeholder="test@pop.com"
+        value="<%= oldInput.email ? oldInput.email : '' %>"
         class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
         required
         autocomplete="off"
@@ -62,6 +67,7 @@
         type="password"
         name="password"
         placeholder="Enter Your Password"
+
         class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
         required
         autocomplete="new-password"
@@ -77,7 +83,7 @@
         autocomplete="new-password"
       />
 
-     <!-- Role Selection -->
+    <!-- Role Selection -->
 <div class="relative w-full px-4 py-2 mb-4 border rounded-md focus-within:ring-2 focus-within:ring-red-500">
   <label class="block text-sm font-medium text-gray-700 mb-2">Register as:</label>
   <div class="flex items-center gap-6">
@@ -86,8 +92,9 @@
         type="radio" 
         name="userType" 
         value="guest" 
+        required
         class="text-red-500 focus:ring-red-500"
-        checked
+        <%= oldInput.userType === 'guest' ? 'checked' : '' %>
       />
       <span class="ml-2 text-gray-700">Guest</span>
     </label>
@@ -97,36 +104,40 @@
         type="radio" 
         name="userType" 
         value="host" 
+        required
         class="text-red-500 focus:ring-red-500"
+        <%= oldInput.userType === 'host' ? 'checked' : '' %>
       />
       <span class="ml-2 text-gray-700">Host</span>
     </label>
   </div>
 </div>
 
+<!-- Terms & Conditions -->
+<div class="mb-4">
+  <label class="inline-flex items-center">
+    <input 
+      type="checkbox" 
+      name="terms" 
+      required
+      class="text-red-500 focus:ring-red-500"
+      <%= oldInput.terms ? 'checked' : '' %>
+    />
+    <span class="ml-2 text-gray-700 text-sm">
+      I agree to the 
+      <a href="/terms" class="text-red-500 hover:underline">Terms & Conditions</a>
+    </span>
+  </label>
+</div>
 
-      <!-- Terms & Conditions -->
-      <div class="mb-4">
-        <label class="inline-flex items-center">
-          <input 
-            type="checkbox" 
-            name="terms" 
-            required
-            class="text-red-500 focus:ring-red-500"
-          />
-          <span class="ml-2 text-gray-700 text-sm">
-            I agree to the 
-            <a href="/terms" class="text-red-500 hover:underline">Terms & Conditions</a>
-          </span>
-        </label>
-      </div>
+
+  
 
       <!-- Submit Button -->
        
       <input
         type="submit"
         value="Register"
-        onclick="this.disabled = true; this.form.submit();"
         class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-300"
       />
 

@@ -1,4 +1,5 @@
 const { check, validationResult } = require("express-validator");
+const User = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
@@ -18,7 +19,6 @@ exports.getSignup = (req, res, next) => {
       firstName: "",
       lastName: "",
       email: "",
-      password: "",
       userType: "",
     },
   });
@@ -88,11 +88,25 @@ exports.postSignup = [
         currentPage: "signup",
         isLoggedIn: false,
         errors: errors.array(),
-        oldInput: { firstName, lastName, email, password, userType },
+        oldInput: { firstName, lastName, email, userType },
       });
     }
 
-    res.redirect("/auth/login");
+    const user = new User({ firstName, lastName, email, password, userType });
+    user
+      .save()
+      .then(() => {
+        res.redirect("/auth/login");
+      })
+      .catch((err) => {
+        return res.status(422).render("auth/signup", {
+          pageTitle: "Signup",
+          currentPage: "signup",
+          isLoggedIn: false,
+          errors: err.array ? err.array() : [{ msg: err.message }],
+          oldInput: { firstName, lastName, email, userType },
+        });
+      });
   },
 ];
 
