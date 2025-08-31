@@ -18,6 +18,7 @@
     "tailwindcss": "^3.4.17"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "connect-mongodb-session": "^5.0.0",
     "cookie-parser": "^1.4.7",

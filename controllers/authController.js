@@ -1,11 +1,14 @@
 const { check, validationResult } = require("express-validator");
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     pageTitle: "Login",
     currentPage: "login",
     isLoggedIn: false,
+    errors: [],
+    oldInput: { email: "" },
   });
 };
 
@@ -92,9 +95,18 @@ exports.postSignup = [
       });
     }
 
-    const user = new User({ firstName, lastName, email, password, userType });
-    user
-      .save()
+    bcrypt
+      .hash(password, 12)
+      .then((hashPassword) => {
+        const user = new User({
+          firstName,
+          lastName,
+          email,
+          password: hashPassword,
+          userType,
+        });
+        return user.save();
+      })
       .then(() => {
         res.redirect("/auth/login");
       })
@@ -110,7 +122,18 @@ exports.postSignup = [
   },
 ];
 
-exports.postLogin = (req, res, next) => {
+exports.postLogin = async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(422).render("auth/login", {
+      pageTitle: "Login",
+      currentPage: "login",
+      isLoggedIn: false,
+      errors: ["User does not exist"],
+      oldInput: { email },
+    });
+  }
   req.session.isLoggedIn = true;
   res.redirect("/");
 };
