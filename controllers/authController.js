@@ -134,7 +134,21 @@ exports.postLogin = async (req, res, next) => {
       oldInput: { email },
     });
   }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(422).render("auth/login", {
+      pageTitle: "Login",
+      currentPage: "login",
+      isLoggedIn: false,
+      errors: ["Inavalid Password"],
+      oldInput: { email },
+    });
+  }
+
+  req.session.user = true;
   req.session.isLoggedIn = true;
+  await req.session.save();
   res.redirect("/");
 };
 
