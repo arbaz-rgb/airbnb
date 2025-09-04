@@ -1,6 +1,7 @@
 const { check, validationResult } = require("express-validator");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const user = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
@@ -9,6 +10,7 @@ exports.getLogin = (req, res, next) => {
     isLoggedIn: false,
     errors: [],
     oldInput: { email: "" },
+    user: {},
   });
 };
 
@@ -24,6 +26,7 @@ exports.getSignup = (req, res, next) => {
       email: "",
       userType: "",
     },
+    user: {},
   });
 };
 
@@ -117,6 +120,7 @@ exports.postSignup = [
           isLoggedIn: false,
           errors: err.array ? err.array() : [{ msg: err.message }],
           oldInput: { firstName, lastName, email, userType },
+          user: {},
         });
       });
   },
@@ -132,6 +136,7 @@ exports.postLogin = async (req, res, next) => {
       isLoggedIn: false,
       errors: ["User does not exist"],
       oldInput: { email },
+      user: {},
     });
   }
 
@@ -146,7 +151,7 @@ exports.postLogin = async (req, res, next) => {
     });
   }
 
-  req.session.user = true;
+  req.session.user = user;
   req.session.isLoggedIn = true;
   await req.session.save();
   res.redirect("/");

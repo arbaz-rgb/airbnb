@@ -6,6 +6,7 @@ exports.getHomeAdd = (req, res, next) => {
     currentPage: "addHome",
     editing: false,
     isLoggedIn: req.isLoggedIn,
+    user: req.session.user,
   });
 };
 
@@ -17,6 +18,7 @@ exports.getHostHomes = async (req, res, next) => {
       pageTitle: "Host Home List",
       currentPage: "host-homes",
       isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
     });
   } catch (errot) {
     console.log(error);
@@ -38,6 +40,7 @@ exports.getEditHome = async (req, res, next) => {
     editing: editing,
     home: home,
     isLoggedIn: req.isLoggedIn,
+    user: req.session.user,
   });
 };
 
