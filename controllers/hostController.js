@@ -46,14 +46,13 @@ exports.getEditHome = async (req, res, next) => {
 
 exports.postAddHome = async (req, res, next) => {
   try {
-    const { houseName, price, location, rating, photoUrl, description } =
-      req.body;
+    const { houseName, price, location, rating, photo, description } = req.body;
     const home = new Home({
       houseName: houseName,
       price: price,
       location: location,
       rating: rating,
-      photoUrl: photoUrl,
+      photo: photo,
       description: description,
     });
 
@@ -71,7 +70,7 @@ exports.postAddHome = async (req, res, next) => {
 
 exports.postEditHome = async (req, res, next) => {
   try {
-    const { id, houseName, price, location, rating, photoUrl, description } =
+    const { id, houseName, price, location, rating, photo, description } =
       req.body;
 
     const home = Home.findById(id);
@@ -83,7 +82,7 @@ exports.postEditHome = async (req, res, next) => {
     home.price = price;
     home.location = location;
     home.rating = rating;
-    home.photoUrl = photoUrl;
+    home.photo = photo;
     home.description = description;
 
     await home.save();
