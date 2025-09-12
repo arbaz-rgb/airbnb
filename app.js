@@ -5,8 +5,10 @@ const path = require("path");
 const express = require("express");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const multer = require("multer");
 const DB_PATH =
   "mongodb+srv://root:root@kadane.5nyfqmw.mongodb.net/airbnb?retryWrites=true&w=majority&appName=kadane";
+const { default: mongoose } = require("mongoose");
 
 //Local Module
 const authRouter = require("./routes/authRouter");
@@ -15,8 +17,6 @@ const hostRouter = require("./routes/hostRouter");
 const rootDir = require("./utils/pathUtil");
 
 const errorController = require("./controllers/error");
-
-const { default: mongoose } = require("mongoose");
 
 const app = express();
 
@@ -28,7 +28,41 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 
+///
+
+const randomString = (length) => {
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + length);
+};
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+
+  filename: (req, file, cb) => {
+    cb(null, randomString(10) + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null , true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const multerOptions = {
+  storage,fileFilter
+};
 app.use(express.urlencoded({ extended: true }));
+app.use(multer(multerOptions).single("photo"));
+app.use(express.static(path.join(rootDir, "public")));
 
 app.use(
   session({
@@ -56,7 +90,6 @@ app.use("/host", (req, res, next) => {
 });
 app.use("/host", hostRouter);
 
-app.use(express.static(path.join(rootDir, "public")));
 //404 error
 app.use(errorController.pageNotFound);
 

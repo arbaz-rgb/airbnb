@@ -46,14 +46,18 @@ exports.getEditHome = async (req, res, next) => {
 
 exports.postAddHome = async (req, res, next) => {
   try {
-    const { houseName, price, location, rating, photo, description } = req.body;
+    const { houseName, price, location, rating, description } = req.body;
+
+    // multer stores uploaded file details in req.file
+    const photo = req.file.path;
+
     const home = new Home({
-      houseName: houseName,
-      price: price,
-      location: location,
-      rating: rating,
-      photo: photo,
-      description: description,
+      houseName,
+      price,
+      location,
+      rating,
+      photo,
+      description,
     });
 
     await home.save();
@@ -61,6 +65,8 @@ exports.postAddHome = async (req, res, next) => {
     res.render("host/home-Added", {
       pageTitle: "Home Added Successfully",
       currentPage: "homeAdded",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
     });
   } catch (err) {
     console.error("Error adding home:", err);
@@ -70,8 +76,8 @@ exports.postAddHome = async (req, res, next) => {
 
 exports.postEditHome = async (req, res, next) => {
   try {
-    const { id, houseName, price, location, rating, photo, description } =
-      req.body;
+    const { id, houseName, price, location, rating, description } = req.body;
+
 
     const home = Home.findById(id);
     if (!home) {
@@ -82,9 +88,11 @@ exports.postEditHome = async (req, res, next) => {
     home.price = price;
     home.location = location;
     home.rating = rating;
-    home.photo = photo;
     home.description = description;
 
+    if (req.file) {
+      home.photo = req.file.path;
+    }
     await home.save();
     res.redirect("/host/host-home-list");
   } catch (err) {
