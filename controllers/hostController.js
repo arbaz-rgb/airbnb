@@ -1,4 +1,6 @@
 const Home = require("../models/home");
+const path = require("path");
+const fs = require("fs");
 
 exports.getHomeAdd = (req, res, next) => {
   res.render("host/edit-home", {
@@ -20,7 +22,7 @@ exports.getHostHomes = async (req, res, next) => {
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
-  } catch (errot) {
+  } catch (error) {
     console.log(error);
     res.status(500).send("Something went wrong");
   }
@@ -78,8 +80,7 @@ exports.postEditHome = async (req, res, next) => {
   try {
     const { id, houseName, price, location, rating, description } = req.body;
 
-
-    const home = Home.findById(id);
+    const home = await Home.findById(id);
     if (!home) {
       return res.redirect("/host/host-home-list");
     }
@@ -91,6 +92,13 @@ exports.postEditHome = async (req, res, next) => {
     home.description = description;
 
     if (req.file) {
+      const oldPhotoPath = path.join(__dirname, "..", home.photo);
+      fs.unlink(oldPhotoPath, (err) => {
+        if (err) {
+          console.error("Error while deleting old photo:", err);
+        }
+      });
+
       home.photo = req.file.path;
     }
     await home.save();
