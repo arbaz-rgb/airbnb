@@ -15,6 +15,7 @@ const authRouter = require("./routes/authRouter");
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
 const rootDir = require("./utils/pathUtil");
+const bookingRouter = require("./routes/bookingRouter");
 
 const errorController = require("./controllers/error");
 
@@ -51,21 +52,22 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === "image/jpg" ||
     file.mimetype === "image/jpeg"
   ) {
-    cb(null , true);
+    cb(null, true);
   } else {
     cb(null, false);
   }
 };
 
 const multerOptions = {
-  storage,fileFilter
+  storage,
+  fileFilter,
 };
 app.use(express.urlencoded({ extended: true }));
 app.use(multer(multerOptions).single("photo"));
 app.use(express.static(path.join(rootDir, "public")));
-app.use("/uploads",express.static(path.join(rootDir, "uploads")));
-app.use("/host/uploads",express.static(path.join(rootDir, "uploads")));
-app.use("/homes/uploads",express.static(path.join(rootDir, "uploads")));
+app.use("/uploads", express.static(path.join(rootDir, "uploads")));
+app.use("/host/uploads", express.static(path.join(rootDir, "uploads")));
+app.use("/homes/uploads", express.static(path.join(rootDir, "uploads")));
 
 app.use(
   session({
@@ -92,6 +94,8 @@ app.use("/host", (req, res, next) => {
   }
 });
 app.use("/host", hostRouter);
+app.use(bookingRouter);
+
 
 //404 error
 app.use(errorController.pageNotFound);
